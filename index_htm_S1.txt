@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html>
+   <head>
+   <title>Speaker Select</title>
+   <script>
+      strSEL = "";
+      strVOL = "";
+
+      function GetAudioStates() 
+      { 
+         nocache = "&nocache=" + Math.random() * 1000000;
+         var request = new XMLHttpRequest();
+         request.onreadystatechange = function() 
+         { 
+            if (this.readyState == 4 && this.status == 200) 
+            { 
+              if (this.responseXML != null) 
+              { var i;
+                var selstr = "";
+
+                // num zones + num of sources. volume needs no html update
+                for (i = 1; i <= 8; i++) 
+                {  selstr = "SEL" + i;
+
+                   if (this.responseXML.getElementsByTagName('SEL').childNodes[0].nodeValue === "checked") 
+                   { document.getElementsByName(selstr)[0].checked = true; } 
+                   else 
+                   { document.getElementsByName(selstr)[0].checked = false; } 
+                } 
+             } 
+          }
+      }
+
+      // send HTTP GET request with relays to switch on/off if any
+      request.open("GET", "ajax_inputs" + strSEL + strVOL + nocache, true); 
+      request.send(null); 
+      setTimeout("GetAudioStates()", 1000);    // checks every second
+      strSEL = "";
+      strVOL = "";
+   } 
+
+   // service relays when checkbox checked/unchecked
+   function GetCheck(selection, cb) 
+   { 
+     if (cb.checked) 
+     { strSEL += ("&" + selection + "=1"); } 
+     else 
+     { strSEL += ("&" + selection + "=0"); } 
+   } 
+ 
+   // volume buttonw
+   function GetVolume(momentary) 
+   { 
+     if (momentary == "VOL9")       // up
+     { strVOL = "&VOL9=1&VOL10=0&VOL11=0"; }
+
+     if (momentary == "VOL10")      // down
+     { strVOL = "&VOL9=0&VOL10=1&VOL11=0"; }
+
+     if (momentary == "VOL11")      // mute
+     { strVOL = "&VOL9=0&VOL10=0&VOL11=1"; }   
+   } 
+ 
+   </script>
+   </head>
+
+   <body onload="GetAudioStates()">
+     <font face="verdana" size="5">
+     <table border="0" size="5">
+
+      <div>
+       <b>Select Speakers:</b> <br>
+         <input type="checkbox" name="SEL1" value="0" onclick="GetCheck('SEL1', this)" /> Kitchen<br />
+         <input type="checkbox" name="SEL2" value="0" onclick="GetCheck('SEL2', this)" /> Library<br />
+         <input type="checkbox" name="SEL3" value="0" onclick="GetCheck('SEL3', this)" /> Master Bedroom<br />
+         <input type="checkbox" name="SEL4" value="0" onclick="GetCheck('SEL4', this)" /> Back Bedroom<br /><br />
+
+       <b>Select Source:</b> <br>
+         <input type="checkbox" name="SEL5" value="0" onclick="GetCheck('SEL5', this)" /> Bedroom CD Player<br />
+         <input type="checkbox" name="SEL6" value="0" onclick="GetCheck('SEL6', this)" /> Den CD Player<br />
+         <input type="checkbox" name="SEL7" value="0" onclick="GetCheck('SEL7', this)" /> Den TV<br />
+         <input type="checkbox" name="SEL8" value="0" onclick="GetCheck('SEL8', this)" /> FM Radio<br /><br />
+      </div>
+
+       <b>Volume:</b>
+         &nbsp; <input type="button" value="UP" onclick="GetVolume('VOL9')" />
+         &nbsp; <input type="button" value="DOWN" onclick="GetVolume('VOL10')" />
+         &nbsp; <input type="button" value="MUTE" onclick="GetVolume('VOL11')" />
+     </table>
+     </font>
+  </body>
+</html>
+
+
